@@ -1,2 +1,2 @@
 # Parkinson-s-ML
-A parkinson'd diseases prediction using voice
+A parkinson's diseases prediction using voice
