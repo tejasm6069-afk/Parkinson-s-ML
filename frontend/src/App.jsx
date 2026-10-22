@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import './App.css';
@@ -171,7 +172,17 @@ function Telehealth() {
   return (
     <div className="page-card fade-in">
       <h2>Telehealth Portal</h2>
-      <p>Integration with medical scheduling APIs will go here.</p>
+      <p>Select an available time slot below to book a preliminary clinical review with a certified specialist.</p>
+      
+      <div style={{ width: "100%", height: "700px", marginTop: "20px", borderRadius: "12px", overflow: "hidden", border: "1px solid var(--border-light)" }}>
+        <iframe 
+          src="https://cal.id/tejas-m" 
+          width="100%" 
+          height="100%" 
+          frameBorder="0" 
+          title="Telehealth Booking"
+        ></iframe>
+      </div>
     </div>
   );
 }
