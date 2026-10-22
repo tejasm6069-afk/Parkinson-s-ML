@@ -40,7 +40,7 @@ export default function App() {
 
     try {
       const response = await fetch(
-        'http://127.0.0.1:8000/upload_and_predict',
+        'https://parkinson-s-ml.onrender.com/upload_and_predict',
         {
           method: 'POST',
           body: formData,
@@ -99,7 +99,7 @@ export default function App() {
             to begin the analysis.
           </p>
           {/* New Template Download Button */}
-          <a href="http://127.0.0.1:8000/download_template" className="template-download" download>
+          <a href="https://parkinson-s-ml.onrender.com/download_template" className="template-download" download>
             <span className="template-icon">📄</span>
             Download Blank Feature Template
           </a>
