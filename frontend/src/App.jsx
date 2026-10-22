@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import jsPDF from 'jspdf';
 import { BrowserRouter as Router, Routes, Route, Link, NavLink, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import './App.css';
@@ -114,6 +115,60 @@ function DiagnosticTool() {
     }
   };
 
+  // PDF Generation Function
+  const generatePDF = () => {
+    if (!result) return;
+    const doc = new jsPDF();
+    
+    // Header
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(22);
+    doc.setTextColor(31, 138, 140); 
+    doc.text("NeuroVoice AI", 20, 20);
+    doc.setFontSize(14);
+    doc.setTextColor(100);
+    doc.text("Acoustic Feature Analysis Report", 20, 28);
+    
+    // Date & File Info
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "normal");
+    doc.text(`Date of Analysis: ${new Date().toLocaleDateString('en-IN')}`, 20, 42);
+    doc.text(`Source Data: ${file ? file.name : 'Patient_Data.csv'}`, 20, 48);
+    
+    // Divider
+    doc.setLineWidth(0.5);
+    doc.setDrawColor(229, 231, 235);
+    doc.line(20, 55, 190, 55);
+    
+    // Diagnostic Results
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(16);
+    doc.setTextColor(11, 31, 36);
+    doc.text("Screening Results", 20, 70);
+    
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(12);
+    const status = result.prediction_code === 1 ? "ALERT: Potential Parkinson's Indicators Detected" : "SAFE: Normal Acoustic Features";
+    
+    if (result.prediction_code === 1) {
+      doc.setTextColor(217, 90, 31);
+    } else {
+      doc.setTextColor(23, 110, 112);
+    }
+    doc.text(status, 20, 82);
+    
+    doc.setTextColor(51, 71, 77);
+    doc.text(`Model Confidence Score: ${result.confidence}%`, 20, 92);
+    doc.text(`Detailed Output: ${result.diagnosis}`, 20, 102, { maxWidth: 170 });
+    
+    // Footer
+    doc.setFontSize(9);
+    doc.setTextColor(150);
+    doc.text("Disclaimer: AI-assisted evaluation for research purposes only. Not a clinical diagnosis.", 20, 280);
+    
+    doc.save(`NeuroVoice_Report_${new Date().getTime()}.pdf`);
+  };
+
   const isAlert = result && result.prediction_code === 1;
 
   return (
@@ -199,6 +254,14 @@ function DiagnosticTool() {
               <p>
                 Model confidence: <strong>{result.confidence}%</strong>
               </p>
+              
+              <button 
+                onClick={generatePDF} 
+                className="secondary-btn" 
+                style={{ marginTop: '20px', display: 'inline-flex', alignItems: 'center', gap: '8px', width: 'auto' }}
+              >
+                📄 Download Medical Report
+              </button>
             </div>
             <ConfidenceRing value={result.confidence} alert={isAlert} />
           </div>
