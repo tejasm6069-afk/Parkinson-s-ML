@@ -11,7 +11,6 @@ export default function App() {
     if (e.target.files && e.target.files[0]) {
       const selectedFile = e.target.files[0];
 
-      // Check if the file is a CSV
       if (!selectedFile.name.toLowerCase().endsWith('.csv')) {
         setError('Please select a CSV file.');
         setFile(null);
@@ -98,7 +97,7 @@ export default function App() {
             Select the patient's acoustic feature CSV file
             to begin the analysis.
           </p>
-          {/* New Template Download Button */}
+          
           <a href="https://parkinson-s-ml.onrender.com/download_template" className="template-download" download>
             <span className="template-icon">📄</span>
             Download Blank Feature Template
@@ -141,7 +140,6 @@ export default function App() {
         {loading && (
           <div className="loading">
             <div className="loader"></div>
-
             <p>
               Extracting acoustic features and
               evaluating the diagnostic model...
@@ -149,33 +147,69 @@ export default function App() {
           </div>
         )}
 
-        {/* Result */}
+        {/* Result Dashboard */}
         {result && !loading && (
-          <section className="result-card">
-
-            <div className="result-label">
-              ANALYSIS COMPLETE
+          <section className="result-dashboard fade-in">
+            <div className="diagnosis-header">
+              <span className={`status-badge ${result.prediction_code === 1 ? 'alert' : 'safe'}`}>
+                ANALYSIS COMPLETE
+              </span>
+              <h2>{result.diagnosis}</h2>
+              <div className="confidence-bar-container">
+                <div 
+                  className={`confidence-bar ${result.prediction_code === 1 ? 'bg-red' : 'bg-green'}`} 
+                  style={{ width: `${result.confidence}%` }}
+                ></div>
+              </div>
+              <p>Diagnostic Confidence: <strong>{result.confidence}%</strong></p>
             </div>
 
-            <h2>{result.diagnosis}</h2>
+            {/* --- CONDITIONAL UI BASED ON DIAGNOSIS --- */}
+            {result.prediction_code === 1 ? (
+              <div className="action-plan slide-up">
+                <h3>Recommended Next Steps</h3>
+                <p className="subtitle">Please consult a medical professional for clinical verification.</p>
+                
+                <div className="card-grid">
+                  <div className="med-card">
+                    <div className="card-icon">🩺</div>
+                    <h4>Telehealth Check-up</h4>
+                    <p>Connect with a certified neurologist online for a preliminary clinical review and guidance.</p>
+                    <button className="secondary-btn">Book Online</button>
+                  </div>
 
-            <div className="confidence">
-              <div className="confidence-value">
-                {result.confidence}%
+                  <div className="med-card">
+                    <div className="card-icon">🏥</div>
+                    <h4>Find Local Specialists</h4>
+                    <p>Locate top-rated hospitals and movement disorder clinics in your immediate area.</p>
+                    <a href="https://www.google.com/maps/search/neurologist+Parkinsons+specialist+near+me" target="_blank" rel="noreferrer" className="secondary-btn link-btn">
+                      Search Nearby
+                    </a>
+                  </div>
+                </div>
               </div>
+            ) : (
+              <div className="action-plan slide-up">
+                <h3>Proactive Wellness & Prevention</h3>
+                <p className="subtitle">Maintain your neurological health with these evidence-based practices.</p>
+                
+                <div className="card-grid">
+                  <div className="med-card">
+                    <div className="card-icon">🥗</div>
+                    <h4>Neuro-protective Diet</h4>
+                    <p>Explore diets rich in antioxidants, Omega-3s, and Mediterranean guidelines to protect brain health.</p>
+                    <button className="secondary-btn">View Diet Plan</button>
+                  </div>
 
-              <div className="confidence-label">
-                Diagnostic Confidence
+                  <div className="med-card">
+                    <div className="card-icon">🏃</div>
+                    <h4>Lifestyle & Exercise</h4>
+                    <p>Learn how aerobic exercise, stress management, and sleep hygiene protect cognitive function.</p>
+                    <button className="secondary-btn">Explore Habits</button>
+                  </div>
+                </div>
               </div>
-            </div>
-
-            {/* Optional additional result information */}
-            {result.message && (
-              <p className="result-message">
-                {result.message}
-              </p>
             )}
-
           </section>
         )}
 
