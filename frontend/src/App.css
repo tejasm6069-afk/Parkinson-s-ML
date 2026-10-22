@@ -88,7 +88,7 @@ body::after {
   to   { transform: translate(60px, 40px) scale(1.15); }
 }
 
-::selection { background: var(--brand); color: #fff; }
+::selection { background: var(--mint); color: var(--ink); -webkit-text-fill-color: var(--ink); }
 
 .app {
   min-height: 100vh;
