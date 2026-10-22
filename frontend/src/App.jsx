@@ -1,7 +1,24 @@
-
 import React, { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import './App.css';
+
+// --- ANIMATION VARIANTS ---
+// These define how elements enter and leave the screen
+const pageAnimation = {
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
+  exit: { opacity: 0, y: -20, transition: { duration: 0.4, ease: "easeIn" } }
+};
+
+const staggerCards = {
+  animate: { transition: { staggerChildren: 0.15 } }
+};
+
+const cardPop = {
+  initial: { opacity: 0, scale: 0.9 },
+  animate: { opacity: 1, scale: 1, transition: { type: "spring", stiffness: 100 } }
+};
 
 // --- MAIN DIAGNOSTIC TOOL COMPONENT ---
 function DiagnosticTool() {
@@ -57,13 +74,17 @@ function DiagnosticTool() {
   };
 
   return (
-    <>
+    <motion.div variants={pageAnimation} initial="initial" animate="animate" exit="exit">
       <header className="header">
-        <div className="badge">DIAGNOSTIC AI</div>
-        <h1>
-          Acoustic Parkinson's
-          <span> Evaluation</span>
-        </h1>
+        <motion.div 
+          className="badge"
+          initial={{ scale: 0 }} 
+          animate={{ scale: 1 }} 
+          transition={{ type: "spring", stiffness: 150, delay: 0.2 }}
+        >
+          DIAGNOSTIC AI
+        </motion.div>
+        <h1>Acoustic Parkinson's<span> Evaluation</span></h1>
         <p>AI-powered analysis of acoustic voice features for Parkinson's disease evaluation.</p>
       </header>
 
@@ -81,100 +102,121 @@ function DiagnosticTool() {
           <span>{file ? file.name : 'Click to select patient CSV'}</span>
         </label>
 
-        {error && <div className="error">{error}</div>}
+        {error && <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="error">{error}</motion.div>}
 
-        <button className="analyze-button" onClick={handleRunAnalysis} disabled={loading}>
+        <motion.button 
+          whileTap={{ scale: 0.95 }}
+          className="analyze-button" 
+          onClick={handleRunAnalysis} 
+          disabled={loading}
+        >
           {loading ? 'Processing Acoustic Vector...' : 'Run Neural Analysis'}
-        </button>
+        </motion.button>
       </section>
 
       {loading && (
-        <div className="loading">
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="loading">
           <div className="loader"></div>
           <p>Extracting acoustic features and evaluating the diagnostic model...</p>
-        </div>
+        </motion.div>
       )}
 
       {result && !loading && (
-        <section className="result-dashboard fade-in">
+        <motion.section 
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ type: "spring", stiffness: 80 }}
+          className="result-dashboard"
+        >
           <div className="diagnosis-header">
             <span className={`status-badge ${result.prediction_code === 1 ? 'alert' : 'safe'}`}>
               ANALYSIS COMPLETE
             </span>
             <h2>{result.diagnosis}</h2>
             <div className="confidence-bar-container">
-              <div 
+              <motion.div 
+                initial={{ width: 0 }}
+                animate={{ width: `${result.confidence}%` }}
+                transition={{ duration: 1.5, ease: "easeOut" }}
                 className={`confidence-bar ${result.prediction_code === 1 ? 'bg-coral' : 'bg-teal'}`} 
-                style={{ width: `${result.confidence}%` }}
-              ></div>
+              ></motion.div>
             </div>
             <p>Diagnostic Confidence: <strong>{result.confidence}%</strong></p>
           </div>
 
-          {result.prediction_code === 1 ? (
-            <div className="action-plan slide-up">
-              <h3>Recommended Next Steps</h3>
-              <p className="subtitle">Please consult a medical professional for clinical verification.</p>
-              <div className="card-grid">
-                <div className="med-card">
-                  <div className="card-icon">🩺</div>
-                  <h4>Telehealth Check-up</h4>
-                  <p>Connect with a certified neurologist online for a preliminary clinical review.</p>
-                  <Link to="/telehealth" className="secondary-btn">Book Online</Link>
-                </div>
-                <div className="med-card">
-                  <div className="card-icon">🏥</div>
-                  <h4>Find Local Specialists</h4>
-                  <p>Locate top-rated hospitals and movement disorder clinics near you.</p>
-                  <a href="https://www.google.com/maps/search/neurologist+Parkinsons+specialist+near+me" target="_blank" rel="noreferrer" className="secondary-btn link-btn">
-                    Search Nearby
-                  </a>
-                </div>
-              </div>
+          <motion.div variants={staggerCards} initial="initial" animate="animate" className="action-plan">
+            <h3>{result.prediction_code === 1 ? 'Recommended Next Steps' : 'Proactive Wellness & Prevention'}</h3>
+            <p className="subtitle">
+              {result.prediction_code === 1 
+                ? 'Please consult a medical professional for clinical verification.' 
+                : 'Maintain your neurological health with these evidence-based practices.'}
+            </p>
+            
+            <div className="card-grid">
+              {result.prediction_code === 1 ? (
+                <>
+                  <motion.div variants={cardPop} className="med-card">
+                    <div className="card-icon">🩺</div>
+                    <h4>Telehealth Check-up</h4>
+                    <p>Connect with a certified neurologist online for a preliminary clinical review.</p>
+                    <Link to="/telehealth" className="secondary-btn">Book Online</Link>
+                  </motion.div>
+                  <motion.div variants={cardPop} className="med-card">
+                    <div className="card-icon">🏥</div>
+                    <h4>Find Local Specialists</h4>
+                    <p>Locate top-rated hospitals and movement disorder clinics near you.</p>
+                    <a href="https://www.google.com/maps/search/neurologist+Parkinsons+specialist+near+me" target="_blank" rel="noreferrer" className="secondary-btn link-btn">
+                      Search Nearby
+                    </a>
+                  </motion.div>
+                </>
+              ) : (
+                <>
+                  <motion.div variants={cardPop} className="med-card">
+                    <div className="card-icon">🥗</div>
+                    <h4>Neuro-protective Diet</h4>
+                    <p>Explore diets rich in antioxidants, Omega-3s, and Mediterranean guidelines.</p>
+                    <Link to="/diet-plans" className="secondary-btn">View Diet Plan</Link>
+                  </motion.div>
+                  <motion.div variants={cardPop} className="med-card">
+                    <div className="card-icon">🏃</div>
+                    <h4>Lifestyle & Exercise</h4>
+                    <p>Learn how aerobic exercise and sleep hygiene protect cognitive function.</p>
+                    <Link to="/lifestyle" className="secondary-btn">Explore Habits</Link>
+                  </motion.div>
+                </>
+              )}
             </div>
-          ) : (
-            <div className="action-plan slide-up">
-              <h3>Proactive Wellness & Prevention</h3>
-              <p className="subtitle">Maintain your neurological health with these evidence-based practices.</p>
-              <div className="card-grid">
-                <div className="med-card">
-                  <div className="card-icon">🥗</div>
-                  <h4>Neuro-protective Diet</h4>
-                  <p>Explore diets rich in antioxidants, Omega-3s, and Mediterranean guidelines.</p>
-                  <Link to="/diet-plans" className="secondary-btn">View Diet Plan</Link>
-                </div>
-                <div className="med-card">
-                  <div className="card-icon">🏃</div>
-                  <h4>Lifestyle & Exercise</h4>
-                  <p>Learn how aerobic exercise and sleep hygiene protect cognitive function.</p>
-                  <Link to="/lifestyle" className="secondary-btn">Explore Habits</Link>
-                </div>
-              </div>
-            </div>
-          )}
-        </section>
+          </motion.div>
+        </motion.section>
       )}
-    </>
+    </motion.div>
   );
 }
 
 // --- NEW PAGE COMPONENTS ---
 function DietPlans() {
   return (
-    <div className="page-card fade-in">
+    <motion.div variants={pageAnimation} initial="initial" animate="animate" exit="exit" className="page-card">
       <h2>Neuro-protective Diet Plans</h2>
       <p>This section will contain detailed dietary recommendations to support brain health.</p>
-    </div>
+    </motion.div>
   );
 }
 
 function Telehealth() {
   return (
-    <div className="page-card fade-in">
+    <motion.div variants={pageAnimation} initial="initial" animate="animate" exit="exit" className="page-card">
       <h2>Telehealth Portal</h2>
       <p>Select an available time slot below to book a preliminary clinical review with a certified specialist.</p>
       
-      <div style={{ width: "100%", height: "700px", marginTop: "20px", borderRadius: "12px", overflow: "hidden", border: "1px solid var(--border-light)" }}>
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 0.3, duration: 0.5 }}
+        style={{ width: "100%", height: "700px", marginTop: "20px", borderRadius: "12px", overflow: "hidden", border: "1px solid var(--border-light)" }}
+      >
+        {/* Paste your Cal.com link back into the src here! */}
         <iframe 
           src="https://cal.id/tejas-m" 
           width="100%" 
@@ -182,17 +224,34 @@ function Telehealth() {
           frameBorder="0" 
           title="Telehealth Booking"
         ></iframe>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }
 
 function Lifestyle() {
   return (
-    <div className="page-card fade-in">
+    <motion.div variants={pageAnimation} initial="initial" animate="animate" exit="exit" className="page-card">
       <h2>Lifestyle & Habits</h2>
       <p>Information on exercise, sleep tracking, and stress management will go here.</p>
-    </div>
+    </motion.div>
+  );
+}
+
+// --- ANIMATED ROUTER WRAPPER ---
+// This enables the "exit" animations when switching pages
+function AnimatedRoutes() {
+  const location = useLocation();
+  
+  return (
+    <AnimatePresence mode="wait">
+      <Routes location={location} key={location.pathname}>
+        <Route path="/" element={<DiagnosticTool />} />
+        <Route path="/diet-plans" element={<DietPlans />} />
+        <Route path="/telehealth" element={<Telehealth />} />
+        <Route path="/lifestyle" element={<Lifestyle />} />
+      </Routes>
+    </AnimatePresence>
   );
 }
 
@@ -201,7 +260,6 @@ export default function App() {
   return (
     <Router>
       <div className="app">
-        {/* Navigation Bar */}
         <nav className="navbar">
           <div className="nav-logo">
             <Link to="/">NeuroVoice AI</Link>
@@ -214,14 +272,8 @@ export default function App() {
         </nav>
 
         <div className="container">
-          {/* Router handles which component shows up based on the URL */}
-          <Routes>
-            <Route path="/" element={<DiagnosticTool />} />
-            <Route path="/diet-plans" element={<DietPlans />} />
-            <Route path="/telehealth" element={<Telehealth />} />
-            <Route path="/lifestyle" element={<Lifestyle />} />
-          </Routes>
-
+          <AnimatedRoutes />
+          
           <footer>
             <p>AI-assisted evaluation • For research purposes only</p>
           </footer>
