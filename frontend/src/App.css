@@ -88,6 +88,15 @@ body::after {
   to   { transform: translate(60px, 40px) scale(1.15); }
 }
 
+/* Force heading colours so global/default stylesheets (e.g. index.css) can't wash them out */
+h1, h2, h3, h4 {
+  color: var(--ink);
+  -webkit-text-fill-color: var(--ink);
+}
+.header h1 span {
+  -webkit-text-fill-color: transparent;
+}
+
 ::selection { background: var(--mint); color: var(--ink); -webkit-text-fill-color: var(--ink); }
 
 .app {
